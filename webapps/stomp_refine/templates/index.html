@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Navigation</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .image-container {
+            display: inline-block;
+            text-align: center;
+            margin: 10px;
+        }
+        .image-buttons {
+            margin-bottom: 10px;
+        }
+        .image-container img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        #control-buttons {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Navigation</h1>
+    <div class="image-container">
+        <div class="image-buttons">
+            <button id="prev_first">Previous</button>
+            <button id="next_first">Next</button>
+        </div>
+        <h2>First Image</h2>
+        <img id="first_image" src="/images/{{ initial_image_path }}" alt="First Image">
+    </div>
+    <div class="image-container">
+        <div class="image-buttons">
+            <button id="prev_last">Previous</button>
+            <button id="next_last">Next</button>
+        </div>
+        <h2>Last Image</h2>
+        <img id="last_image" src="/images/{{ final_image_path }}" alt="Last Image">
+    </div>
+    <div id="control-buttons">
+        <button id="next_combination">Next Combination</button>
+        <button id="save_combination">Save Combination</button>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("#next_first").click(function() {
+                $.get("/next_image_first", function(data) {
+                    $("#first_image").attr("src", data.next_image_url);
+                });
+            });
+            $("#prev_first").click(function() {
+                $.get("/prev_image_first", function(data) {
+                    $("#first_image").attr("src", data.next_image_url);
+                });
+            });
+            $("#next_last").click(function() {
+                $.get("/next_image_last", function(data) {
+                    $("#last_image").attr("src", data.next_image_url);
+                });
+            });
+            $("#prev_last").click(function() {
+                $.get("/prev_image_last", function(data) {
+                    $("#last_image").attr("src", data.next_image_url);
+                });
+            });
+            $("#next_combination").click(function() {
+                $.get("/next_combination", function(data) {
+                    if (data.error) {
+                        alert(data.error);
+                    } else {
+                        $("#first_image").attr("src", data.initial_image_path);
+                        $("#last_image").attr("src", data.final_image_path);
+                    }
+                });
+            });
+            $("#save_combination").click(function() {
+                $.post("/save_idx", function(data) {
+                    if (data.success) {
+                        alert("Combination saved successfully!");
+                    } else {
+                        alert("Failed to save combination.");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+

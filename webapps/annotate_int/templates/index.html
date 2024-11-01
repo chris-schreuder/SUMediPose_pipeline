@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image Click Logger</title>
+    <style>
+        #image {
+            cursor: crosshair;
+        }
+        #buttons {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Click on the Image to Log Coordinates</h1>
+    <img id="image" src="{{ url_for('static', filename='img/' + initial_image_path) }}" alt="Image" onclick="logClick(event)">
+    <ul id="coordinates"></ul>
+    
+    <div id="buttons">
+        <button onclick="nextImage()">Next Image</button>
+        <button onclick="saveCoordinates()">Save</button>
+    </div>
+    
+    <script>
+        let coordinates = [];
+
+        function logClick(event) {
+            const x = event.offsetX;
+            const y = event.offsetY;
+            const coordinatesList = document.getElementById('coordinates');
+            
+            // Add the coordinates to the list in the browser
+            const li = document.createElement('li');
+            li.textContent = `X: ${x}, Y: ${y}`;
+            coordinatesList.appendChild(li);
+            
+            // Store coordinates locally
+            coordinates.push({ x: x, y: y });
+
+            // Send the coordinates to the server
+            fetch('/log_click', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ x: x, y: y })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      console.log(`Logged: (${x}, ${y})`);
+                  }
+              });
+        }
+
+        function nextImage() {
+            // Logic to load the next image
+            fetch('/next_image')
+                .then(response => response.json())
+                .then(data => {
+                    // Ensure the image path is correct by adding the static/img/ prefix
+                    const nextImageUrl = '/static/img/' + data.next_image_url;
+                    document.getElementById('image').src = nextImageUrl;
+                    document.getElementById('coordinates').innerHTML = ''; // Clear coordinates if needed
+                    coordinates = []; // Reset coordinates array if necessary
+                })
+                .catch(error => console.error('Error fetching next image:', error));
+        }
+
+        function saveCoordinates() {
+            // Send the coordinates to the server for saving
+            fetch('/save_coordinates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ coordinates: coordinates })
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      console.log('Coordinates saved successfully');
+                      alert('Coordinates saved successfully');
+                  } else {
+                      console.log('Failed to save coordinates');
+                      alert('Failed to save coordinates');
+                  }
+              });
+        }
+    </script>
+</body>
+</html>
