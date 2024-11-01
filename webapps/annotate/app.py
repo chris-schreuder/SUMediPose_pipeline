@@ -8,8 +8,10 @@ current_image_index = 0
 image_paths = []
 markers_dict = {}
 
+root_path = 'path/to/your/data/'
+
 # Load image paths from JSON file at startup
-with open('/home/chris/Desktop/Masters/Stereo Paper/code/data_process/markers.json', 'r') as f:
+with open(f'{root_path}data/markers.json', 'r') as f:
     markers_dict = json.load(f)
 
 # Extract all image paths into a list
@@ -61,7 +63,7 @@ def save_coordinates():
         markers_dict[subject][camera]['points'] = all_points
 
         # Save the updated markers_dict to the markers.json file
-        with open('/home/chris/Desktop/Masters/Stereo Paper/code/data_process/markers.json', 'w') as f:
+        with open(f'{root_path}data/markers.json', 'w') as f:
             json.dump(markers_dict, f, indent=4)
 
         # Clear the all_points list

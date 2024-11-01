@@ -5,16 +5,18 @@ import pandas as pd
 
 app = Flask(__name__)
 
+root_path = 'path/to/your/data/'
+
 # Load data
 try:
-    with open('/home/chris/Desktop/Masters/Stereo Paper/code/data_process/data_stomps/stomp_refine.json', 'r') as f:
+    with open(f'{root_path}data/stomp_refine.json', 'r') as f:
         stomp_data = json.load(f)
 except FileNotFoundError:
     stomp_data = {}
 
 combinations_done = list(stomp_data.keys())
 
-df = pd.read_csv('/home/chris/Desktop/Masters/Stereo Paper/code/data_process/data_stomps/stomps_C4.csv')
+df = pd.read_csv(f'{root_path}data/stomps_C4.csv')
 df = df[~df['combination'].isin(combinations_done)]
 
 df['first_idx'] = pd.to_numeric(df['first_idx'], errors='coerce').astype('Int64')
@@ -45,7 +47,7 @@ def index():
 # Route to serve images
 @app.route('/images/<path:filename>')
 def serve_image(filename):
-    return send_file(os.path.join('/media/chris/T7/data_processed/frames', filename))
+    return send_file(os.path.join(f'{root_path}data/frames', filename))
 
 # Route to get the next image URL for the first image
 @app.route('/next_image_first', methods=['GET'])
@@ -118,7 +120,7 @@ def save_idx():
         'last_idx': last_idx
     }
     # Save the updated stomp_data to the JSON file
-    with open('/home/chris/Desktop/Masters/Stereo Paper/code/data_process/data_stomps/stomp_refine.json', 'w') as f:
+    with open(f'{root_path}data/stomp_refine.json', 'w') as f:
         json.dump(stomp_data, f, indent=4)
     return jsonify(success=True)
 
